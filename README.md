@@ -1,266 +1,138 @@
-# Binary Tree - Theory & Implementation
+# Binary Tree Data Structures
+
+My personal notes and implementation details for Binary Trees, including theory analysis, recursive vs. iterative approaches, and traversal algorithms.
+
+---
 
 ## Table of Contents
-- [Tree Fundamentals](#tree-fundamentals)
-- [Binary Tree Basics](#binary-tree-basics)
-- [Catalan Numbers](#catalan-numbers)
-- [Tree Properties](#tree-properties)
-- [Tree Representations](#tree-representations)
-- [Tree Traversals](#tree-traversals)
-- [Iterative Implementations](#iterative-implementations)
+
+- [1. Theory Analysis](#1-theory-analysis)
+  - [Terminology](#terminology)
+  - [Binary Tree](#binary-tree)
+  - [Mathematical Properties](#mathematical-properties)
+  - [Strict & Complete Trees](#strict--complete-trees)
+- [2. Recursive Execution Trace (Preorder)](#2-recursive-execution-trace-preorder)
+- [3. Traversal Types Overview](#3-traversal-types-overview)
+- [4. Iterative Traversals (Using Stack)](#4-iterative-traversals-using-stack)
+- [5. Level Order Traversal (Using Queue)](#5-level-order-traversal-using-queue)
 
 ---
 
-## Tree Fundamentals
+## 1. Theory Analysis
 
-A **Tree** is simply a collection of nodes where one node takes the role as **root node** and the rest of the nodes are disjoint subsets, where each subset is a tree or subtree.
+A **Tree** is simply a collection of nodes where one node is designated as the **Root**, and the rest of the nodes are disjoint subsets (sub-trees).
 
-### Key Terminology
+* **n nodes** → **(n-1) edges**
 
-- **n nodes** → **(n-1) edges**
-- **Siblings** → children of the same parent
-- **Descendants** → all children and their children (recursively)
-- **Ancestors** → all nodes in the path from a node to the Root
-- **Node degree** → number of children of this node
-- **Tree degree** → max degree of any node in the tree
-- **Leaf (External) Node** → node with degree zero
-- **Level** → number of nodes in the path from root (1→L)
-- **Height** → number of edges in the path (0→H)
-- **Forest** → collection of trees that can be combined into one tree
+### Terminology
 
----
+* **Siblings:** Children of the same parent
+* **Descendants:** All children recursively (children, their children, etc.)
+* **Ancestors:** All nodes along the path from a specific node up to the Root
+* **Node Degree:** Number of children a specific node has
+* **Tree Degree:** The maximum degree found among all nodes in the tree
+* **Leaf (External) Node:** A node with degree zero
+* **Level:** Number of nodes in the path from Root (1) to the node (L)
+* **Height:** Number of edges in the longest path from Root (0) to a leaf (H)
+* **Forest:** A collection of trees that can be combined into one tree
 
-## Binary Tree Basics
+### Binary Tree
 
-**Binary Tree**: A tree where each node has at most 2 children (2nd degree tree)
+A Binary Tree is strictly a **2nd degree Tree** (each node has at most 2 children).
 
----
+### Mathematical Properties
 
-## Catalan Numbers
+#### 1. Generating Shapes from Unlabeled Nodes
 
-### The Problem
-**How many binary tree shapes can be generated from n non-labeled nodes?**
+**Observation:** If we have 3 nodes, we can generate 5 different binary tree shapes.
 
-### Observation
-From 3 nodes, we can generate **5 different binary tree shapes**:
-- T(3) = 5
-- T(4) = 14
-- T(5) = 42
+* T(3) = 5
+* T(4) = 14
+
+This follows the **Catalan Number** sequence:
+
+$$T(n) = \frac{1}{n+1} \binom{2n}{n}$$
 
 ```mermaid
 graph TD
-    subgraph "n=3: Five Binary Tree Shapes"
+    subgraph "Catalan Numbers: Binary Tree Shapes"
         
-        subgraph T1["Tree 1"]
-            A1((•))
-            B1((•))
-            C1((•))
-            A1 --- B1
-            B1 --- C1
+        subgraph "n = 3 generates T(3) = 5 shapes"
+            
+            subgraph Shape1["Shape 1"]
+                A1((•))
+                B1((•))
+                C1((•))
+                A1 --- B1
+                B1 --- C1
+            end
+            
+            subgraph Shape2["Shape 2"]
+                A2((•))
+                B2((•))
+                C2((•))
+                A2 --- B2
+                A2 --- C2
+            end
+            
+            subgraph Shape3["Shape 3"]
+                A3((•))
+                B3((•))
+                C3((•))
+                A3 --- B3
+                B3 --- C3
+            end
+            
+            subgraph Shape4["Shape 4"]
+                A4((•))
+                B4((•))
+                C4((•))
+                A4 --- B4
+                A4 --- C4
+            end
+            
+            subgraph Shape5["Shape 5"]
+                A5((•))
+                B5((•))
+                C5((•))
+                A5 --- B5
+                B5 --- C5
+            end
         end
         
-        subgraph T2["Tree 2"]
-            A2((•))
-            B2((•))
-            C2((•))
-            A2 --- B2
-            A2 --- C2
-        end
-        
-        subgraph T3["Tree 3"]
-            A3((•))
-            B3((•))
-            C3((•))
-            A3 --- B3
-            B3 --- C3
-        end
-        
-        subgraph T4["Tree 4"]
-            A4((•))
-            B4((•))
-            C4((•))
-            A4 --- B4
-            A4 --- C4
-        end
-        
-        subgraph T5["Tree 5"]
-            A5((•))
-            B5((•))
-            C5((•))
-            A5 --- B5
-            B5 --- C5
-        end
+        Formula["T(n) = (2n)! / ((n+1)! × n!)"]
     end
 ```
 
-### Catalan Number Formula
+#### 2. Height vs. Nodes
 
-**For Non-Labeled Nodes:**
-```
-T(n) = (2nCn) / (n+1)
-```
+* **Number of nodes with Max height:** $2^{(n-1)}$
+* **Min Nodes for height h:** $h + 1$
+* **Max Nodes for height h:** $2^{(h+1)} - 1$
 
-**Recursive Formula:**
-```
-T(n) = Σ T(i-1) × T(n-i)  for i=1 to n
-```
+#### 3. Node Degree Relationship
 
-**For Labeled Nodes:**
-```
-T(n) = [(2nCn) / (n+1)] × n!
-```
+In any binary tree, the number of leaf nodes ($N_0$) is related to nodes with two children ($N_2$):
 
-### Table of Values
+$$N_0 = N_2 + 1$$
 
-| n | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
-|---|---|---|---|---|---|---|---|
-| T(n) | 1 | 1 | 2 | 5 | 14 | 42 | 132 |
+**Where:**
+- $N_0$ = nodes with degree 0 (leaf nodes)
+- $N_2$ = nodes with degree 2 (internal nodes with two children)
 
-**Pattern Found:**
-```
-T(6) = 1×42 + 1×14 + 2×5 + 5×2 + 14×1 + 42×1 = 132
-```
+### Strict & Complete Trees
+
+* **Strict Binary Tree:** Every node has either 0 or 2 children (no node has degree 1)
+    * Formula: $\text{External} = \text{Internal} + 1$
+* **Full Binary Tree:** A tree with the maximum possible number of nodes for its height
+* **Complete Binary Tree:** A tree where all levels are completely filled except possibly the last, which is filled from left to right
+    * *Note:* Every Full BT is Complete, but not every Complete BT is Full
 
 ---
 
-## Tree Properties
+## 2. Recursive Execution Trace (Preorder)
 
-### Height to Nodes Relationship
-
-**If we have height h, what is the min and max number of nodes?**
-- **Min Nodes** = h + 1
-- **Max Nodes** = 2^(h+1) - 1
-
-**Number of nodes with max height:**
-```
-Max nodes at height h = 2^(h-1)
-```
-
-### Degree Relationship (Important!)
-
-**Observation:** Number of nodes with degree 0 equals number of nodes with degree 2 + 1
-```
-deg(0) = deg(2) + 1
-```
-
-### Strict Binary Tree
-
-A binary tree is **Strict** iff all nodes have degree 0 or degree 2 (cannot be 1)
-
-**In strict binary tree:**
-```
-Number of external nodes = Number of internal nodes + 1
-e = i + 1
-```
-
-**Strict 3-ary Tree:** All nodes have degree 0 or degree 3 only
-
----
-
-## Tree Representations
-
-### Array Representation
-
-We can represent Binary Trees by filling an array **level by level**.
-
-**Key Formulas:**
-```
-For node at index i:
-- Left Child = 2i
-- Right Child = 2i + 1
-- Parent = floor(i/2)
-```
-
-### Linked Representation
-
-Using Doubly Linked List structure:
-```cpp
-struct Node {
-    Node* left;
-    int data;
-    Node* right;
-};
-```
-
-### Tree Types
-
-- **Complete Binary Tree:** When represented in an array, there are no blank places in between
-- **Full Binary Tree:** Has the maximum number of nodes (2^(h+1) - 1)
-
-**Note:** 
-- All Full BT are Complete BT by nature
-- Not every Strict BT is Complete and vice versa (arrangement determines this)
-
----
-
-## Tree Traversals
-
-### Visual Examples
-
-```mermaid
-flowchart TB
-    %% Main Container
-    subgraph Main ["Tree Traversals"]
-        direction TB
-
-        %% Top Section: The Three Examples
-        subgraph Examples ["Visual Examples"]
-            direction LR
-
-            %% Case 1: Full Tree
-            subgraph Ex1 ["Case 1: Full Node"]
-                direction TB
-                A1((A)) --> B1((B))
-                A1 --> C1((C))
-                
-                Res1["Pre: A, B, C<br/>In: B, A, C<br/>Post: B, C, A<br/>Level: A, B, C"]
-            end
-
-            %% Case 2: Left Skewed
-            subgraph Ex2 ["Case 2: Left Child Only"]
-                direction TB
-                A2((A)) --> B2((B))
-                
-                Res2["Pre: A, B<br/>In: B, A<br/>Post: B, A<br/>Level: A, B"]
-            end
-
-            %% Case 3: Right Skewed
-            subgraph Ex3 ["Case 3: Right Child Only"]
-                direction TB
-                A3((A)) --> B3((B))
-                
-                Res3["Pre: A, B<br/>In: A, B<br/>Post: B, A<br/>Level: A, B"]
-            end
-        end
-
-        %% Bottom Section: Definitions
-        subgraph Rules ["Traversal Definitions"]
-            direction TB
-            D1["✦ Preorder: visit(node) → Preorder(left) → Preorder(right)"]
-            D2["✦ Inorder: Inorder(left) → visit(node) → Inorder(right)"]
-            D3["✦ Postorder: Postorder(left) → Postorder(right) → visit(node)"]
-            D4["✦ Level order: Level by Level (BFS)"]
-        end
-    end
-
-    Examples --> Rules
-```
-
-### Traversal Definitions
-
-**Preorder:** `visit(node) → Preorder(left) → Preorder(right)`
-
-**Inorder:** `Inorder(left) → visit(node) → Inorder(right)`
-
-**Postorder:** `Postorder(left) → Postorder(right) → visit(node)`
-
-**Level Order:** Visit nodes level by level (Breadth-First)
-
----
-
-## Iterative Implementations
-
-### Preorder Traversal - Recursive Visualization
+Visualizing how the stack and recursion work for `pre(200)`.
 
 ```mermaid
 flowchart TB
@@ -269,7 +141,7 @@ flowchart TB
         direction TB
 
         %% 1. The Recursion Tree (Top Left)
-        subgraph Trace ["Recursion Tree (Execution)"]
+        subgraph Trace ["Recursion Tree Execution"]
             direction TB
             N1("pre(200)<br/>🔴1")
             
@@ -308,7 +180,7 @@ flowchart TB
             S1 --- S2 --- S3 --- S4
         end
         
-        Complexity["⏱️ Time: n + (n+1) = 2n + 1 = O(n)"]
+        Complexity["⏱️ Time Complexity:<br/>n + (n+1) = 2n + 1 = O(n)"]
     end
 
     %% --- Right Column ---
@@ -316,12 +188,12 @@ flowchart TB
         direction TB
         
         %% 3. Code Snippet (Top Right)
-        subgraph Code ["C++ Code"]
+        subgraph Code ["C++ Implementation"]
             CodeBlock["void Preorder(Node *t) {<br/>&nbsp;&nbsp;if(t != NULL) {<br/>&nbsp;&nbsp;&nbsp;&nbsp;1. print(t->data)<br/>&nbsp;&nbsp;&nbsp;&nbsp;2. Preorder(t->left)<br/>&nbsp;&nbsp;&nbsp;&nbsp;3. Preorder(t->right)<br/>&nbsp;&nbsp;}<br/>}"]
         end
 
         %% 4. Data Tree (Bottom Right)
-        subgraph DataTree ["Actual Tree (Memory)"]
+        subgraph DataTree ["Actual Tree in Memory"]
             direction TB
             ROOT(("8<br/>[200]"))
             L_Child(("3<br/>[210]"))
@@ -341,15 +213,110 @@ flowchart TB
     end
 ```
 
-### Preorder Traversal - Iterative Approach
+**Key Insight:** The recursion tree shows the order of function calls (numbered 1-15), demonstrating how the call stack grows and shrinks during execution.
 
-**Problem:** We want to iterate between steps 1 and 2 (print then go left, print then go left... until NULL), and go backward to the right of each reached node. But how do we remember reached nodes to go right? We need a **Stack**!
+---
 
-> **Key Insight:** To transfer recursive traversal to iteration, we must use a Stack
+## 3. Traversal Types Overview
 
-**Algorithm:**
-1. Print data → push to stack → go left... repeat until NULL
-2. When NULL: pop from stack → go right... return to step 1
+A visual comparison of Preorder, Inorder, Postorder, and Level Order traversals on different tree shapes.
+
+```mermaid
+flowchart TB
+    %% Main Container
+    subgraph Main ["Tree Traversals Comparison"]
+        direction TB
+
+        %% Top Section: The Three Examples
+        subgraph Examples ["Visual Examples"]
+            direction LR
+
+            %% Case 1: Full Tree
+            subgraph Ex1 ["Case 1: Full Node"]
+                direction TB
+                A1((A)) --> B1((B))
+                A1 --> C1((C))
+                
+                Res1["✦ Pre: A, B, C<br/>✦ In: B, A, C<br/>✦ Post: B, C, A<br/>✦ Level: A, B, C"]
+            end
+
+            %% Case 2: Left Skewed
+            subgraph Ex2 ["Case 2: Left Child Only"]
+                direction TB
+                A2((A)) --> B2((B))
+                
+                Res2["✦ Pre: A, B<br/>✦ In: B, A<br/>✦ Post: B, A<br/>✦ Level: A, B"]
+            end
+
+            %% Case 3: Right Skewed
+            subgraph Ex3 ["Case 3: Right Child Only"]
+                direction TB
+                A3((A)) --> B3((B))
+                
+                Res3["✦ Pre: A, B<br/>✦ In: A, B<br/>✦ Post: B, A<br/>✦ Level: A, B"]
+            end
+        end
+
+        %% Bottom Section: Definitions
+        subgraph Rules ["Traversal Definitions"]
+            direction TB
+            D1["📍 Preorder: visit(node) → Preorder(left) → Preorder(right)"]
+            D2["📍 Inorder: Inorder(left) → visit(node) → Inorder(right)"]
+            D3["📍 Postorder: Postorder(left) → Postorder(right) → visit(node)"]
+            D4["📍 Level Order: Visit nodes level by level BFS"]
+        end
+    end
+
+    Examples --> Rules
+```
+
+### Traversal Summary
+
+| Traversal | Order | Use Case |
+|-----------|-------|----------|
+| **Preorder** | Root → Left → Right | Copy tree, prefix expression |
+| **Inorder** | Left → Root → Right | BST sorted output |
+| **Postorder** | Left → Right → Root | Delete tree, postfix expression |
+| **Level Order** | Level by level | BFS, find shortest path |
+
+---
+
+## 4. Iterative Traversals (Using Stack)
+
+> **Key Principle:** To convert recursive traversal to iteration, we must use a **Stack** to remember the nodes we need to return to.
+
+### A. Preorder Iteration
+
+**Algorithm Steps:**
+
+1. Print root → Push to Stack → Go Left
+2. Continue until NULL
+3. When NULL: Pop from Stack → Go Right
+
+```mermaid
+flowchart TD
+    Start((Start)) --> CheckNode{Is t != NULL?}
+    
+    subgraph Phase1 ["Phase 1: 'Dive Left' Cycle"]
+    direction TB
+    CheckNode -- "YES<br/>Keep diving" --> Print[/"📝 1. Print(t->data)"/]
+    Print --> Push["📥 2. Stack.push(t)"]
+    Push --> MoveLeft["⬅️ 3. t = t->left"]
+    MoveLeft --> CheckNode
+    end
+
+    subgraph Phase2 ["Phase 2: 'Backtrack' Cycle"]
+    direction TB
+    CheckNode -- "NO<br/>Hit NULL wall" --> CheckStack{Is Stack Empty?}
+    CheckStack -- "NO<br/>Backtrack" --> Pop["📤 4. t = Stack.pop()"]
+    Pop --> MoveRight["➡️ 5. t = t->right"]
+    MoveRight -.-> CheckNode
+    end
+
+    CheckStack -- "YES<br/>Tree Finished" --> Stop((Stop))
+```
+
+**Implementation:**
 
 ```cpp
 void PreorderIteration(Node* t) {
@@ -357,7 +324,7 @@ void PreorderIteration(Node* t) {
     
     while (t != NULL || !st.isEmpty()) {
         if (t != NULL) {
-            printf("%d ", t->data);
+            printf("%d ", t->data);  // Print BEFORE pushing
             st.push(t);
             t = t->left;
         }
@@ -369,34 +336,11 @@ void PreorderIteration(Node* t) {
 }
 ```
 
-**Flowchart:**
+### B. Inorder Iteration
 
-```mermaid
-flowchart TD
-    Start((Start)) --> CheckNode{Is t != NULL?}
-    
-    subgraph Phase1 ["Phase 1: The 'Dive Left' Cycle"]
-    direction TB
-    CheckNode -- YES <br/>Keep diving --> Print[/"📝 1. Print(t->data)"/]
-    Print --> Push["📥 2. Stack.push(t)"]
-    Push --> MoveLeft["⬅️ 3. t = t->left"]
-    MoveLeft --> CheckNode
-    end
+The logic is similar to Preorder, but we **defer printing** until we pop the node from the stack (meaning we have finished the left subtree).
 
-    subgraph Phase2 ["Phase 2: The 'Backtrack' Cycle"]
-    direction TB
-    CheckNode -- NO <br/>Hit NULL wall --> CheckStack{Is Stack Empty?}
-    CheckStack -- NO <br/>Backtrack --> Pop["📤 4. t = Stack.pop()"]
-    Pop --> MoveRight["➡️ 5. t = t->right"]
-    MoveRight -.-> CheckNode
-    end
-
-    CheckStack -- YES <br/>Tree Finished --> Stop((Stop))
-```
-
-### Inorder Traversal - Iterative Approach
-
-**In-order uses the same approach, but we print before going right (while going backward):**
+**Implementation:**
 
 ```cpp
 void InorderIteration(Node* t) {
@@ -404,68 +348,105 @@ void InorderIteration(Node* t) {
     
     while (t != NULL || !st.isEmpty()) {
         if (t != NULL) {
-            st.push(t);
+            st.push(t);              // Push, but DON'T print yet
             t = t->left;
         }
         else {
             t = st.pop();
-            printf("%d ", t->data);  // Print while backtracking!
+            printf("%d ", t->data);  // Print AFTER popping (returning from left)
             t = t->right;
         }
     }
 }
 ```
 
+**Key Difference:**
+- **Preorder:** Print → Push → Go Left
+- **Inorder:** Push → Go Left → Pop → Print → Go Right
+
+### C. Postorder Iteration (Two-Stack Method)
+
+Postorder is hard iteratively because we visit the Root twice (before Right, and after Right). The easiest way is to implement **Reverse Preorder** (Root → Right → Left) and store it in a second stack to print in reverse.
+
+**Algorithm:**
+1. Use Stack 1 for traversal (Root → Right → Left)
+2. Use Stack 2 to store nodes for reverse printing
+3. Pop Stack 2 to get correct order (Left → Right → Root)
+
+**Implementation:**
+
+```cpp
+void PostorderIteration(Node* t) {
+    if (t == NULL) return;
+    
+    Stack st1, st2;
+    st1.push(t);
+
+    while (!st1.isEmpty()) {
+        t = st1.pop();
+        st2.push(t);  // Store for later (don't print yet)
+
+        // Push Left then Right (so Right is processed first by st1)
+        if (t->left) st1.push(t->left);
+        if (t->right) st1.push(t->right);
+    }
+
+    // Print st2 in reverse (Left → Right → Root)
+    while (!st2.isEmpty()) {
+        t = st2.pop();
+        printf("%d ", t->data);
+    }
+}
+```
+
 ---
 
-## Level Order Traversal
+## 5. Level Order Traversal (Using Queue)
 
-**Printing data level by level (Breadth-First Search)**
+Level Order prints data level by level. This requires a **Queue** (FIFO - First In First Out).
 
 ### Algorithm
-1. Print root → push to queue
-2. newParent = pop from queue 
-   - Print newParent's left → push left to queue
-   - Print newParent's right → push right to queue
-3. Repeat until queue is empty
+
+1. Print Root → Enqueue Root
+2. While Queue is not empty:
+   * Dequeue `p`
+   * If `p->left` exists: Print it, then Enqueue it
+   * If `p->right` exists: Print it, then Enqueue it
+
+### Visualization
 
 ```mermaid
-flowchart LR
-    subgraph Example["Level Order Example"]
+flowchart TD
+    Start((Start)) --> CheckNull{Tree Empty?}
+    CheckNull -- YES --> End((End))
+    CheckNull -- NO --> InitQueue["📝 Print Root<br/>📥 Enqueue Root"]
+    
+    InitQueue --> LoopCheck{Queue Empty?}
+    
+    subgraph Processing ["Level-by-Level Processing"]
         direction TB
-        
-        subgraph Tree["Tree Structure"]
-            R((8)) --> L1((3))
-            R --> L2((5))
-            L1 --> L3((4))
-            L1 --> L4((9))
-            L2 --> L5((7))
-            L2 --> L6((2))
-        end
-        
-        subgraph Process["Queue Process"]
-            Q1["Queue: [8]"]
-            Q2["Queue: [3, 5]"]
-            Q3["Queue: [5, 4, 9]"]
-            Q4["Queue: [4, 9, 7, 2]"]
-            
-            Q1 --> Q2 --> Q3 --> Q4
-        end
-        
-        Output["📤 Output: 8, 3, 5, 4, 9, 7, 2"]
+        LoopCheck -- NO --> Dequeue["📤 p = Dequeue()"]
+        Dequeue --> CheckLeft{p->left exists?}
+        CheckLeft -- YES --> PrintLeft["📝 Print(p->left)<br/>📥 Enqueue(p->left)"]
+        CheckLeft -- NO --> CheckRight{p->right exists?}
+        PrintLeft --> CheckRight
+        CheckRight -- YES --> PrintRight["📝 Print(p->right)<br/>📥 Enqueue(p->right)"]
+        CheckRight -- NO --> LoopCheck
+        PrintRight --> LoopCheck
     end
+    
+    LoopCheck -- YES --> End
 ```
 
 ### Implementation
 
 ```cpp
-void Tree::levelorderTraversal(TreeNode* p) {
-    // Check for empty tree
+void Tree::levelorderTraversal(Node* p) {
     if (p == NULL) return;
 
-    Queue<TreeNode*> q; // Use custom Queue class
+    Queue q; 
 
-    // Initial Setup: Enqueue root
+    // Initial Setup
     printf("%d ", p->data);
     q.enqueue(p);
 
@@ -485,30 +466,69 @@ void Tree::levelorderTraversal(TreeNode* p) {
 }
 ```
 
+### Example Execution
+
+For tree:
+```
+      8
+     / \
+    3   5
+   / \ / \
+  4  9 7  2
+```
+
+**Queue State Evolution:**
+
+| Step | Queue | Printed |
+|------|-------|---------|
+| 1 | [8] | 8 |
+| 2 | [3, 5] | 8, 3, 5 |
+| 3 | [5, 4, 9] | 8, 3, 5, 4, 9 |
+| 4 | [4, 9, 7, 2] | 8, 3, 5, 4, 9, 7, 2 |
+| 5 | [] | Done |
+
 ---
 
 ## Summary
 
+### Comparison Table
+
+| Traversal | Data Structure | Time | Space | Print Timing |
+|-----------|----------------|------|-------|--------------|
+| Preorder (Iterative) | Stack | O(n) | O(h) | Before push |
+| Inorder (Iterative) | Stack | O(n) | O(h) | After pop |
+| Postorder (Iterative) | 2 Stacks | O(n) | O(n) | Reverse order |
+| Level Order | Queue | O(n) | O(w) | As dequeued |
+
+**Where:**
+- h = height of tree
+- w = maximum width of tree
+- n = number of nodes
+
 ### Key Takeaways
 
-1. **Catalan Numbers** describe the number of structurally unique binary trees
-2. **deg(0) = deg(2) + 1** is a fundamental property of binary trees
-3. **Recursive to Iterative:** Use Stack for DFS traversals (Pre/In/Post-order)
-4. **Level Order:** Use Queue for BFS traversal
-5. **Array vs Linked:** Choose representation based on completeness and operations needed
+✅ **Recursive to Iterative:** Use Stack for DFS traversals (Preorder, Inorder, Postorder)
 
-### Time Complexities
+✅ **Level Order:** Use Queue for BFS traversal
 
-- All traversals: **O(n)** where n is the number of nodes
-- Space complexity: **O(h)** for recursive/stack-based (h = height)
-- Level order space: **O(w)** where w is max width of tree
+✅ **Catalan Numbers:** Count structurally unique binary trees for n nodes
+
+✅ **Degree Relationship:** $N_0 = N_2 + 1$ (leaves = internal nodes with 2 children + 1)
+
+✅ **Preorder:** Print while going down (diving left)
+
+✅ **Inorder:** Print while coming back up (after visiting left subtree)
+
+✅ **Postorder:** Print after visiting both subtrees (requires two stacks for iteration)
 
 ---
 
 ## License
 
-Feel free to use this reference material for learning and teaching purposes.
+© 2026 [Your Name]. All Rights Reserved.
+
+This educational material is provided for personal learning purposes only.
 
 ---
 
-**Happy Coding! 🌳**
+**Happy Learning! 🌳**
