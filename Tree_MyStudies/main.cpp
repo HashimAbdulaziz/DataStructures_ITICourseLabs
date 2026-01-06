@@ -1,19 +1,10 @@
 #include <iostream>
+#include "TreeNode.h"
 #include "Queue.h"
+#include "Stack.h"
 
 using namespace std;
 
-class TreeNode{
-    public:
-        TreeNode* left;
-        int data;
-        TreeNode* right;
-
-        TreeNode(int data){
-            this->data = data;
-            left = right = nullptr;
-        }
-};
 
 class Tree{
     public:
@@ -22,9 +13,15 @@ class Tree{
         Tree(){root = nullptr;}
 
         void createTree();
-        void preorderTraversal(TreeNode* p);
-        void postorderTraversal(TreeNode* p);
-        void inorderTraversal(TreeNode* p);
+        void preorderRecursiveTraversal(TreeNode* p);
+        void postorderRecursiveTraversal(TreeNode* p);
+        void inorderRecursiveTraversal(TreeNode* p);
+
+        void prerderIterationTraversal(TreeNode* t);
+        void inorderIterationTraversal(TreeNode* t);
+        void postorderIterationTraversal(TreeNode* t);
+
+
         void levelorderTraversal(TreeNode* p);
         int height(TreeNode* p);
 
@@ -68,7 +65,7 @@ void Tree::createTree() {
 }
 
 
-void Tree::preorderTraversal(TreeNode* p){
+void Tree::preorderRecursiveTraversal(TreeNode* p){
     if(p == nullptr)
         return;
 
@@ -76,35 +73,103 @@ void Tree::preorderTraversal(TreeNode* p){
 
     printf("%d ", p->data); // visit Root
 
-    preorderTraversal(p->left); // visit Left
+    preorderRecursiveTraversal(p->left); // visit Left
 
-    preorderTraversal(p->right); // visit Right
+    preorderRecursiveTraversal(p->right); // visit Right
 }
 
-void Tree::inorderTraversal(TreeNode* p){
+void Tree::inorderRecursiveTraversal(TreeNode* p){
     if(p == nullptr)
         return;
 
     // InOrder --> (left, root, right)
 
-    inorderTraversal(p->left); // visit Left
+    inorderRecursiveTraversal(p->left); // visit Left
 
     printf("%d ", p->data); // visit Root
 
-    inorderTraversal(p->right); // visit Right
+    inorderRecursiveTraversal(p->right); // visit Right
 }
 
-void Tree::postorderTraversal(TreeNode* p){
+void Tree::postorderRecursiveTraversal(TreeNode* p){
     if(p == nullptr)
         return;
 
     // PostOrder --> (left, right, root)
 
-    postorderTraversal(p->left); // visit Left
+    postorderRecursiveTraversal(p->left); // visit Left
 
-    postorderTraversal(p->right); // visit Right
+    postorderRecursiveTraversal(p->right); // visit Right
 
     printf("%d ", p->data); // visit Root
+}
+
+
+void preorderIteration(TreeNode* t){
+	Stack st;
+
+	while(t != NULL || !st.isEmpty()){
+		if(t != NULL){
+			printf("%d", t->data);
+			st.push(t);
+			t = t->left;
+		}
+		else{
+			t = st.pop();
+			t = t->right;
+		}
+	}
+}
+
+
+void Tree::inorderIterationTraversal(TreeNode* t){
+	Stack st;
+
+	while(t != NULL || !st.isEmpty()){
+		if(t != NULL){
+			st.push(t);
+			t = t->left;
+		}
+		else{
+			t = st.pop();
+			printf("%d", t->data);
+			t = t->right;
+		}
+	}
+}
+
+
+/* Postorder by change print location
+// Why this FAILS for Postorder
+else {
+    t = st.pop();     // 1. We pop the Root (e.g., 200)
+    t = t->right;     // 2. We move 't' to the Right Child (e.g., 230)
+    printf(t->data);  // 3. BUG! You are printing 230, not 200!
+                      //    And if 230 has children, you just skipped them!
+}
+*/
+
+
+void Tree::postorderIterationTraversal(Node* t) {
+    if (t == NULL) return;
+    Stack st1, st2;
+
+    st1.push(t);
+
+    while (!st1.isEmpty()) {
+        t = st1.pop();
+        st2.push(t); // Don't print, save it for later
+
+        // Push Left then Right (so Right is processed first -> Preorder modified)
+        if (t->left) st1.push(t->left);
+        if (t->right) st1.push(t->right);
+    }
+
+    // Print the second stack (Reverse order)
+    while (!st2.isEmpty()) {
+        t = st2.pop();
+        printf("%d ", t->data);
+    }
 }
 
 
@@ -114,16 +179,20 @@ int main() {
     t.createTree();
     printf("\n");
 
+    printf("\n ======== testing Recursive version ===== \n");
+
     printf("Preorder: ");
-    t.preorderTraversal(t.root);
+    t.preorderRecursiveTraversal(t.root);
     printf("\n");
 
     printf("Inorder: ");
-    t.inorderTraversal(t.root);
+    t.inorderRecursiveTraversal(t.root);
     printf("\n");
 
     printf("Postorder: ");
-    t.postorderTraversal(t.root);
+    t.postorderRecursiveTraversal(t.root);
+
+    printf("\n ======== testing Iteration version ===== \n");
 
 
 
