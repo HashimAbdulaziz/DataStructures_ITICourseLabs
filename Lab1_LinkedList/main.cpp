@@ -116,7 +116,7 @@ class LinkedList{
         }
 
 
-        //2. indsert node before given node
+        //2. insert node before given node
         void insertBefore(int data, int beforeData){
             Node* current = head;
             // check if the Linked List is empty

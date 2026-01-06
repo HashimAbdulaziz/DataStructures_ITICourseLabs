@@ -33,6 +33,8 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="Queue.h" />
+		<Unit filename="Stack.h" />
+		<Unit filename="TreeNode.h" />
 		<Unit filename="main.cpp" />
 		<Extensions />
 	</Project>
