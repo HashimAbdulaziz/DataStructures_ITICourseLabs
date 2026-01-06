@@ -17,7 +17,7 @@ class Tree{
         void postorderRecursiveTraversal(TreeNode* p);
         void inorderRecursiveTraversal(TreeNode* p);
 
-        void prerderIterationTraversal(TreeNode* t);
+        void preorderIterationTraversal(TreeNode* t);
         void inorderIterationTraversal(TreeNode* t);
         void postorderIterationTraversal(TreeNode* t);
 
@@ -105,12 +105,12 @@ void Tree::postorderRecursiveTraversal(TreeNode* p){
 }
 
 
-void preorderIteration(TreeNode* t){
+void Tree::preorderIterationTraversal(TreeNode* t){
 	Stack st;
 
 	while(t != NULL || !st.isEmpty()){
 		if(t != NULL){
-			printf("%d", t->data);
+			printf("%d ", t->data);
 			st.push(t);
 			t = t->left;
 		}
@@ -132,7 +132,7 @@ void Tree::inorderIterationTraversal(TreeNode* t){
 		}
 		else{
 			t = st.pop();
-			printf("%d", t->data);
+			printf("%d ", t->data);
 			t = t->right;
 		}
 	}
@@ -150,25 +150,62 @@ else {
 */
 
 
-void Tree::postorderIterationTraversal(Node* t) {
+void Tree::postorderIterationTraversal(TreeNode* t) {
+    // 1. Safety Check
     if (t == NULL) return;
+
+    // 2. We need two stacks
+    // st1: Used for processing (Process Root, then Left, then Right)
+    // st2: Used for storage (Stores nodes in reverse Postorder: Root, Right, Left)
     Stack st1, st2;
 
     st1.push(t);
 
     while (!st1.isEmpty()) {
         t = st1.pop();
-        st2.push(t); // Don't print, save it for later
+        st2.push(t); // Store Root in st2 (It will be printed last)
 
-        // Push Left then Right (so Right is processed first -> Preorder modified)
-        if (t->left) st1.push(t->left);
-        if (t->right) st1.push(t->right);
+        // 3. Push Left then Right to st1
+        // Because st1 is LIFO, Right will be popped first.
+        // Processing Order: Root -> Right -> Left
+        if (t->left != NULL)
+            st1.push(t->left);
+        if (t->right != NULL)
+            st1.push(t->right);
     }
 
-    // Print the second stack (Reverse order)
+    // 4. Print st2
+    // st2 pop order: Left -> Right -> Root (Correct Postorder)
     while (!st2.isEmpty()) {
         t = st2.pop();
         printf("%d ", t->data);
+    }
+}
+
+
+void Tree::levelorderTraversal(TreeNode* p) {
+    // Check for empty tree
+    if (p == NULL) return;
+
+    Queue<TreeNode*> q; // Use my custom Queue class
+
+    // 2. Initial Setup: Print root and enqueue it
+    // Actually, standard logic is: Enqueue Root -> Loop
+    printf("%d ", p->data);
+    q.enqueue(p);
+
+    while (!q.isEmpty()) {
+        p = q.dequeue();
+
+        if (p->left != NULL) {
+            printf("%d ", p->left->data);
+            q.enqueue(p->left);
+        }
+
+        if (p->right != NULL) {
+            printf("%d ", p->right->data);
+            q.enqueue(p->right);
+        }
     }
 }
 
@@ -179,20 +216,37 @@ int main() {
     t.createTree();
     printf("\n");
 
-    printf("\n ======== testing Recursive version ===== \n");
 
-    printf("Preorder: ");
+    printf("\n ======== testing Recursive version ===== \n");
+    printf("Preorder Recursive: ");
     t.preorderRecursiveTraversal(t.root);
     printf("\n");
 
-    printf("Inorder: ");
+    printf("Inorder Recursive: ");
     t.inorderRecursiveTraversal(t.root);
     printf("\n");
 
-    printf("Postorder: ");
+    printf("Postorder Recursive: ");
     t.postorderRecursiveTraversal(t.root);
+    printf("\n");
+
 
     printf("\n ======== testing Iteration version ===== \n");
+    printf("Preorder Iterative: ");
+    t.preorderIterationTraversal(t.root);
+    printf("\n");
+
+    printf("Inorder Iterative: ");
+    t.inorderIterationTraversal(t.root);
+    printf("\n");
+
+    printf("Postorder Iterative: ");
+    t.postorderIterationTraversal(t.root);
+    printf("\n\n");
+
+
+    printf("Level Order: ");
+    t.levelorderTraversal(t.root);
 
 
 
