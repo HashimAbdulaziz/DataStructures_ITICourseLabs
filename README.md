@@ -741,8 +741,8 @@ The deletion process depends on the node's structure:
 
 ## License
 
-© 2026 [Your Name]. All Rights Reserved.
+© 2026 [Hashim Abdulaziz]. All Rights Reserved.
 
-This educational material is provided for personal learning purposes only.
+This educational material is provided for anyone who prays for God's blessing on me.
 
 ---
