@@ -209,7 +209,7 @@ flowchart TB
             R_Child --> RL & RR
         end
         
-        Output["📤 Output: 8, 3, 4, 9, 5, 7, 2"]
+        Output["Output: 8, 3, 4, 9, 5, 7, 2"]
     end
 ```
 
@@ -260,10 +260,10 @@ flowchart TB
         %% Bottom Section: Definitions
         subgraph Rules ["Traversal Definitions"]
             direction TB
-            D1["📍 Preorder: visit(node) → Preorder(left) → Preorder(right)"]
-            D2["📍 Inorder: Inorder(left) → visit(node) → Inorder(right)"]
-            D3["📍 Postorder: Postorder(left) → Postorder(right) → visit(node)"]
-            D4["📍 Level Order: Visit nodes level by level BFS"]
+            D1["Preorder: visit(node) → Preorder(left) → Preorder(right)"]
+            D2["Inorder: Inorder(left) → visit(node) → Inorder(right)"]
+            D3["Postorder: Postorder(left) → Postorder(right) → visit(node)"]
+            D4["Level Order: Visit nodes level by level BFS"]
         end
     end
 
@@ -299,17 +299,17 @@ flowchart TD
     
     subgraph Phase1 ["Phase 1: 'Dive Left' Cycle"]
     direction TB
-    CheckNode -- "YES<br/>Keep diving" --> Print[/"📝 1. Print(t->data)"/]
-    Print --> Push["📥 2. Stack.push(t)"]
-    Push --> MoveLeft["⬅️ 3. t = t->left"]
+    CheckNode -- "YES<br/>Keep diving" --> Print[/"1. Print(t->data)"/]
+    Print --> Push["2. Stack.push(t)"]
+    Push --> MoveLeft["3. t = t->left"]
     MoveLeft --> CheckNode
     end
 
     subgraph Phase2 ["Phase 2: 'Backtrack' Cycle"]
     direction TB
     CheckNode -- "NO<br/>Hit NULL wall" --> CheckStack{Is Stack Empty?}
-    CheckStack -- "NO<br/>Backtrack" --> Pop["📤 4. t = Stack.pop()"]
-    Pop --> MoveRight["➡️ 5. t = t->right"]
+    CheckStack -- "NO<br/>Backtrack" --> Pop["4. t = Stack.pop()"]
+    Pop --> MoveRight["5. t = t->right"]
     MoveRight -.-> CheckNode
     end
 
@@ -419,18 +419,18 @@ Level Order prints data level by level. This requires a **Queue** (FIFO - First 
 flowchart TD
     Start((Start)) --> CheckNull{Tree Empty?}
     CheckNull -- YES --> End((End))
-    CheckNull -- NO --> InitQueue["📝 Print Root<br/>📥 Enqueue Root"]
+    CheckNull -- NO --> InitQueue["Print Root<br/>Enqueue Root"]
     
     InitQueue --> LoopCheck{Queue Empty?}
     
     subgraph Processing ["Level-by-Level Processing"]
         direction TB
-        LoopCheck -- NO --> Dequeue["📤 p = Dequeue()"]
+        LoopCheck -- NO --> Dequeue["p = Dequeue()"]
         Dequeue --> CheckLeft{p->left exists?}
-        CheckLeft -- YES --> PrintLeft["📝 Print(p->left)<br/>📥 Enqueue(p->left)"]
+        CheckLeft -- YES --> PrintLeft["Print(p->left)<br/>Enqueue(p->left)"]
         CheckLeft -- NO --> CheckRight{p->right exists?}
         PrintLeft --> CheckRight
-        CheckRight -- YES --> PrintRight["📝 Print(p->right)<br/>📥 Enqueue(p->right)"]
+        CheckRight -- YES --> PrintRight["Print(p->right)<br/>Enqueue(p->right)"]
         CheckRight -- NO --> LoopCheck
         PrintRight --> LoopCheck
     end
@@ -507,20 +507,130 @@ For tree:
 
 ### Key Takeaways
 
-✅ **Recursive to Iterative:** Use Stack for DFS traversals (Preorder, Inorder, Postorder)
+**Recursive to Iterative:** Use Stack for DFS traversals (Preorder, Inorder, Postorder)
 
-✅ **Level Order:** Use Queue for BFS traversal
+**Level Order:** Use Queue for BFS traversal
 
-✅ **Catalan Numbers:** Count structurally unique binary trees for n nodes
+**Catalan Numbers:** Count structurally unique binary trees for n nodes
 
-✅ **Degree Relationship:** $N_0 = N_2 + 1$ (leaves = internal nodes with 2 children + 1)
+**Degree Relationship:** $N_0 = N_2 + 1$ (leaves = internal nodes with 2 children + 1)
 
-✅ **Preorder:** Print while going down (diving left)
+**Preorder:** Print while going down (diving left)
 
-✅ **Inorder:** Print while coming back up (after visiting left subtree)
+**Inorder:** Print while coming back up (after visiting left subtree)
 
-✅ **Postorder:** Print after visiting both subtrees (requires two stacks for iteration)
+**Postorder:** Print after visiting both subtrees (requires two stacks for iteration)
 
+---
+# Binary Search Tree (BST)
+
+A **Binary Search Tree** is a binary tree in which, for every node, the elements in the **left** sub-tree are smaller than the node, and the elements in the **right** sub-tree are greater.
+
+## Properties
+* **No Duplicates:** Standard BSTs do not allow duplicate keys.
+* **Sorted Data:** An **Inorder Traversal** of a BST gives the keys in sorted order!
+* **Number of Shapes:** The number of different BST shapes that can be generated from $n$ nodes is given by the **Catalan Number**:
+    $$T(n) = \frac{1}{n+1}\binom{2n}{n}$$
+    > **Note:** For a specific set of distinct keys, each unique shape corresponds to exactly one valid arrangement of those nodes.
+
+---
+
+## Searching for a Key
+
+### Algorithm
+1.  Start comparing the key with the **Root**.
+2.  If the key is **less** than the root, go **Left**.
+3.  If the key is **greater** than the root, go **Right**.
+4.  Repeat until you find the key or reach `NULL`.
+
+### Time Complexity
+The number of comparisons depends on the height ($h$) of the tree.
+* We know that for a Binary Tree: $\log n \leq h \leq n$.
+* Therefore: $O(\log n) \leq \text{Time Complexity} \leq O(n)$.
+* **Average Case:** $O(\log n)$.
+
+### Recursive Search Implementation
+```cpp
+TreeNode* searchBSTRecursive(TreeNode* root, int key){
+    if(root == nullptr)
+        return nullptr;
+        
+    if(key == root->data)
+        return root;
+    else if(key < root->data)
+        return searchBSTRecursive(root->left, key);
+    else
+        return searchBSTRecursive(root->right, key);
+}
+Iterative Search ImplementationC++TreeNode* searchBSTIteration(TreeNode* root, int key) {
+    while (root) {
+        if (key == root->data)
+            return root;
+        else if (key < root->data)
+            root = root->left;
+        else
+            root = root->right;
+    }
+    return nullptr;
+}
+Note: We don't always need a Stack to convert Recursion to Iteration. In this case, we don't need to "remember" the path or the visited parent, so a simple while loop works.Inserting a NodeInsertion is very similar to searching. We search for the key, and when we reach NULL, we have found the correct spot for the new node.Recursive InsertC++TreeNode* insertBSTRecursive(TreeNode* root, int key) {
+    if (root == nullptr) {
+        return new TreeNode(key);
+    }
+
+    if (key < root->data) {
+        root->left = insertBSTRecursive(root->left, key);
+    }
+    else if (key > root->data) {
+        root->right = insertBSTRecursive(root->right, key);
+    }
+
+    return root;
+}
+Iterative InsertC++TreeNode* insertBSTIteration(TreeNode* root, int key) {
+    // Case 1: Empty tree
+    if (root == nullptr)
+        return new TreeNode(key);
+
+    TreeNode* curr = root;
+    TreeNode* parent = nullptr;
+
+    while (curr) {
+        parent = curr;
+
+        if (key < curr->data)
+            curr = curr->left;
+        else if (key > curr->data)
+            curr = curr->right;
+        else
+            return root;  // Key already exists (no insertion)
+    }
+
+    TreeNode* newNode = new TreeNode(key);
+
+    if (key < parent->data)
+        parent->left = newNode;
+    else
+        parent->right = newNode;
+
+    return root;
+}
+Creating a Binary Search Tree from an ArrayProblem StatementConstruct a BST from a given array of keys.Input Keys: [9, 15, 5, 20, 16, 8, 12, 3, 6]The AlgorithmTo build the tree, take the first element as the Root. For every subsequent element:Start at the Root.Compare the new key with the current node:If Key < Node: Move Left.If Key > Node: Move Right.Repeat until you reach a NULL spot.Insert the new key there.Visual ExampleHere is the resulting structure based on the input keys:Code snippetgraph TD
+    9((9)) --> 5((5))
+    9 --> 15((15))
+    
+    5 --> 3((3))
+    5 --> 8((8))
+    
+    8 --> 6((6))
+    
+    15 --> 12((12))
+    15 --> 20((20))
+    
+    20 --> 16((16))
+
+    style 9 fill:#f9f,stroke:#333,stroke-width:2px,color:black
+Trace Example (Inserting 16)To understand the placement of node 16:Compare with Root 9: $16 > 9$ $\to$ Go Right.Compare with 15: $16 > 15$ $\to$ Go Right.Compare with 20: $16 < 20$ $\to$ Go Left.Spot is empty $\to$ Insert 16.Time Complexity AnalysisThe cost is the number of elements multiplied by the cost to find the insertion spot for each element.$$\text{Total Time} = (\text{Number of Elements}) \times (\text{Cost to Search/Insert})$$Number of insertions: $n$Cost per insertion: Proportional to height, roughly $\log n$ (balanced).$$O(n) \times O(\log n) = O(n \log n)$$Note: In the worst-case scenario (if the array is already sorted), the height becomes $n$, making complexity $O(n^2)$. For random data, it averages $O(n \log n)$.Deleting a Node from BSTThere are three scenarios when deleting a node:Leaf Node: Simply delete it and set the parent's pointer to NULL.Node with One Child: Replace the node with its child.Node with Two Children: You must find the Inorder Successor or Inorder Predecessor and replace the node's value with it (then delete that successor/predecessor node).How to find replacements?Inorder Predecessor: The right-most child of the left sub-tree.Inorder Successor: The left-most child of the right sub-tree.
 ---
 
 ## License
@@ -530,5 +640,3 @@ For tree:
 This educational material is provided for personal learning purposes only.
 
 ---
-
-**Happy Learning! 🌳**
