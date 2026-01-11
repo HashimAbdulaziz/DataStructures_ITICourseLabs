@@ -180,7 +180,7 @@ flowchart TB
             S1 --- S2 --- S3 --- S4
         end
         
-        Complexity["⏱️ Time Complexity:<br/>n + (n+1) = 2n + 1 = O(n)"]
+        Complexity["Time Complexity:<br/>n + (n+1) = 2n + 1 = O(n)"]
     end
 
     %% --- Right Column ---
@@ -521,48 +521,63 @@ For tree:
 
 **Postorder:** Print after visiting both subtrees (requires two stacks for iteration)
 
+
 ---
+
 # Binary Search Tree (BST)
 
-A **Binary Search Tree** is a binary tree in which, for every node, the elements in the **left** sub-tree are smaller than the node, and the elements in the **right** sub-tree are greater.
+A Binary Search Tree is a Binary Tree in which for every node, elements in the left subtree are smaller than elements in the right subtree.
 
 ## Properties
-* **No Duplicates:** Standard BSTs do not allow duplicate keys.
-* **Sorted Data:** An **Inorder Traversal** of a BST gives the keys in sorted order!
-* **Number of Shapes:** The number of different BST shapes that can be generated from $n$ nodes is given by the **Catalan Number**:
-    $$T(n) = \frac{1}{n+1}\binom{2n}{n}$$
-    > **Note:** For a specific set of distinct keys, each unique shape corresponds to exactly one valid arrangement of those nodes.
+
+* **No Duplicates** — Each element appears only once in the tree
+* **Inorder Traversal Gives Sorted Order** — Traversing the tree in inorder produces elements in ascending order
+* **Number of Different Shapes** — For `n` nodes, the number of different BST shapes that can be generated equals the Catalan Number:
+  
+  $$T(n) = \frac{2nCn}{n+1}$$
+  
+  > **Note:** Each shape has only one arrangement of nodes
 
 ---
 
 ## Searching for a Key
 
 ### Algorithm
-1.  Start comparing the key with the **Root**.
-2.  If the key is **less** than the root, go **Left**.
-3.  If the key is **greater** than the root, go **Right**.
-4.  Repeat until you find the key or reach `NULL`.
 
-### Time Complexity
-The number of comparisons depends on the height ($h$) of the tree.
-* We know that for a Binary Tree: $\log n \leq h \leq n$.
-* Therefore: $O(\log n) \leq \text{Time Complexity} \leq O(n)$.
-* **Average Case:** $O(\log n)$.
+Start comparing with the root. If the key is less than the root, go left; if greater, go right. Repeat until you find the key or reach `NULL`.
 
-### Recursive Search Implementation
+The number of comparisons depends on the height of the tree: **O(h)**
+
+From Binary Tree properties, we know that:
+
+$$\log(n) \leq h \leq n$$
+
+Therefore:
+
+$$O(\log n) \leq \text{Time Complexity} \leq O(n)$$
+
+We assume the minimum (best case) time complexity is **O(log n)**.
+
+### Recursive Search
+
 ```cpp
 TreeNode* searchBSTRecursive(TreeNode* root, int key){
-    if(root == nullptr)
-        return nullptr;
-        
-    if(key == root->data)
-        return root;
-    else if(key < root->data)
-        return searchBSTRecursive(root->left, key);
-    else
-        return searchBSTRecursive(root->right, key);
+	if(root == nullptr)
+		return nullptr;
+		
+	if(key == root->data)
+		return root;
+	else if(key < root->data)
+		return searchBSTRecursive(root->left, key);
+	else
+		return searchBSTRecursive(root->right, key);
 }
-Iterative Search ImplementationC++TreeNode* searchBSTIteration(TreeNode* root, int key) {
+```
+
+### Iterative Search
+
+```cpp
+TreeNode* searchBSTIteration(TreeNode* root, int key) {
     while (root) {
         if (key == root->data)
             return root;
@@ -573,7 +588,20 @@ Iterative Search ImplementationC++TreeNode* searchBSTIteration(TreeNode* root, i
     }
     return nullptr;
 }
-Note: We don't always need a Stack to convert Recursion to Iteration. In this case, we don't need to "remember" the path or the visited parent, so a simple while loop works.Inserting a NodeInsertion is very similar to searching. We search for the key, and when we reach NULL, we have found the correct spot for the new node.Recursive InsertC++TreeNode* insertBSTRecursive(TreeNode* root, int key) {
+```
+
+> **Note:** We don't always need a stack to convert recursion to iteration. In this case, we don't need to remember each visited parent.
+
+---
+
+## Inserting a Node
+
+Insertion is similar to the search algorithm. When we reach `NULL`, that's the right place for the inserted node.
+
+### Recursive Insert
+
+```cpp
+TreeNode* insertBSTRecursive(TreeNode* root, int key) {
     if (root == nullptr) {
         return new TreeNode(key);
     }
@@ -587,8 +615,13 @@ Note: We don't always need a Stack to convert Recursion to Iteration. In this ca
 
     return root;
 }
-Iterative InsertC++TreeNode* insertBSTIteration(TreeNode* root, int key) {
-    // Case 1: Empty tree
+```
+
+### Iterative Insert
+
+```cpp
+TreeNode* insertBSTIteration(TreeNode* root, int key) {
+    // Case 1: empty tree
     if (root == nullptr)
         return new TreeNode(key);
 
@@ -603,7 +636,7 @@ Iterative InsertC++TreeNode* insertBSTIteration(TreeNode* root, int key) {
         else if (key > curr->data)
             curr = curr->right;
         else
-            return root;  // Key already exists (no insertion)
+            return root;  // key already exists (no insertion)
     }
 
     TreeNode* newNode = new TreeNode(key);
@@ -615,7 +648,39 @@ Iterative InsertC++TreeNode* insertBSTIteration(TreeNode* root, int key) {
 
     return root;
 }
-Creating a Binary Search Tree from an ArrayProblem StatementConstruct a BST from a given array of keys.Input Keys: [9, 15, 5, 20, 16, 8, 12, 3, 6]The AlgorithmTo build the tree, take the first element as the Root. For every subsequent element:Start at the Root.Compare the new key with the current node:If Key < Node: Move Left.If Key > Node: Move Right.Repeat until you reach a NULL spot.Insert the new key there.Visual ExampleHere is the resulting structure based on the input keys:Code snippetgraph TD
+```
+
+---
+
+## Creating a Binary Search Tree from an Array of Keys
+
+### Problem Statement
+
+Construct a Binary Search Tree (BST) from a given array of keys.
+
+**Input Keys:**
+
+```
+[9, 15, 5, 20, 16, 8, 12, 3, 6]
+```
+
+### Algorithm
+
+To build the tree, we take the first element as the **Root**. For every subsequent element, we follow these steps:
+
+1. **Start at the Root**
+2. **Compare** the new key with the current node's value:
+   - If **Key < Node**: Move to the **Left** child
+   - If **Key > Node**: Move to the **Right** child
+3. **Repeat** step 2 until you reach a `NULL` pointer (an empty spot)
+4. **Insert** the new key at that position
+
+### Visual Example (From Input)
+
+Here is the resulting structure based on the input keys:
+
+```mermaid
+graph TD
     9((9)) --> 5((5))
     9 --> 15((15))
     
@@ -630,7 +695,48 @@ Creating a Binary Search Tree from an ArrayProblem StatementConstruct a BST from
     20 --> 16((16))
 
     style 9 fill:#f9f,stroke:#333,stroke-width:2px,color:black
-Trace Example (Inserting 16)To understand the placement of node 16:Compare with Root 9: $16 > 9$ $\to$ Go Right.Compare with 15: $16 > 15$ $\to$ Go Right.Compare with 20: $16 < 20$ $\to$ Go Left.Spot is empty $\to$ Insert 16.Time Complexity AnalysisThe cost is the number of elements multiplied by the cost to find the insertion spot for each element.$$\text{Total Time} = (\text{Number of Elements}) \times (\text{Cost to Search/Insert})$$Number of insertions: $n$Cost per insertion: Proportional to height, roughly $\log n$ (balanced).$$O(n) \times O(\log n) = O(n \log n)$$Note: In the worst-case scenario (if the array is already sorted), the height becomes $n$, making complexity $O(n^2)$. For random data, it averages $O(n \log n)$.Deleting a Node from BSTThere are three scenarios when deleting a node:Leaf Node: Simply delete it and set the parent's pointer to NULL.Node with One Child: Replace the node with its child.Node with Two Children: You must find the Inorder Successor or Inorder Predecessor and replace the node's value with it (then delete that successor/predecessor node).How to find replacements?Inorder Predecessor: The right-most child of the left sub-tree.Inorder Successor: The left-most child of the right sub-tree.
+```
+
+### Trace Example (Inserting 16)
+
+To understand the placement of node `16`:
+
+1. Compare with Root `9`: $16 > 9$ → Go **Right**
+2. Compare with `15`: $16 > 15$ → Go **Right**
+3. Compare with `20`: $16 < 20$ → Go **Left**
+4. Spot is empty → **Insert 16**
+
+### Time Complexity Analysis
+
+The cost of building the tree is calculated by multiplying the number of elements by the cost of finding the insertion spot for each element.
+
+$$\text{Total Time} = (\text{Number of Elements}) \times (\text{Cost to Search/Insert})$$
+
+- **Number of insertions:** $n$
+- **Cost per insertion:** Proportional to the height of the tree, which is roughly $\log n$ (for a balanced tree)
+
+$$O(n) \times O(\log n) = O(n \log n)$$
+
+> **Note:** In the worst-case scenario (if the array was already sorted, e.g., 1, 2, 3, 4...), the height would be $n$, making the complexity $O(n^2)$. However, for random data, it averages to $O(n \log n)$.
+
+---
+
+## Deleting a Node from BST
+
+The deletion process depends on the node's structure:
+
+* **If the node is a leaf:** Simply delete it and connect the parent to `NULL`
+* **If the node has only one child:** Replace it with its child
+* **If the node has two children:** Find either the **Inorder Successor** or **Inorder Predecessor** and replace the node with it
+
+### Finding Predecessors and Successors
+
+**How to get the Inorder Predecessor?**
+→ Find the *rightmost child of the left subtree*
+
+**How to get the Inorder Successor?**
+→ Find the *leftmost child of the right subtree*
+
 ---
 
 ## License
